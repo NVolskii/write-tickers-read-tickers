@@ -9,20 +9,6 @@ SELECT_VALUES_QUERY='''select ticker_value,processed_dttm from tickers_values wh
 '''
 
 
-# def generate_graph(ticker_name):
-#     with psycopg2.connect(**PG_CONF) as conn:
-#         cur = conn.cursor()
-#         cur.execute(SELECT_VALUES_QUERY, (ticker_name,))
-#         res = cur.fetchall()
-#     df = pd.DataFrame({
-#         "Time": [t for (_,t) in res],
-#         "Value": [v for (v,_) in res]
-#     })
-#     fig = px.line(df, x='Time', y='Value')    
-#     return fig
-
-
-
 def generate_app():
     app = Dash(__name__)
     tickers = [f'ticker_{i:02}' for i in range(99)]
@@ -59,4 +45,3 @@ def update_graph(ticker):
 if __name__ == '__main__':
     app = generate_app()
     app.run_server(debug=True)
-    # print(generate_graph('a'))
