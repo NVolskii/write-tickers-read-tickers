@@ -1,8 +1,15 @@
 from dash import Dash, dcc, html, callback, Input, Output
 import plotly.express as px
 import psycopg2
-from vals_generator import PG_CONF
 import pandas as pd
+
+PG_CONF = {
+    'dbname': 'postgres',
+    'host': 'localhost',
+    'port': 55000,
+    'user': 'postgres',
+    'password': 'postgrespw',
+}
 
 
 SELECT_VALUES_QUERY='''select ticker_value,processed_dttm from tickers_values where ticker_name=%s;

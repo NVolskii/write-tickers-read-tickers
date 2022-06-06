@@ -2,15 +2,8 @@
 This project is my solution to technical task of an interview. More information coming soon.
 
 # Project Description
-## Preface
-At first I wanted to implement something like producer-consumer layout, but finally decided that it will be
-an overengeneering for the task. For now I implemented data generator as a service which incapsulates getting data from
-somewhere, leaving us with resulting values in a database. Perhaps I will change it later.
-## Current solution
-Right now there is not much done about the project. Data generation is pretty straightforward: every second one hundred
-values for all tickers are generated and written to the database. Timestamp for each new value is generated on the
-db-side, which is, in my opinion, the correct way to do it. Data presenter lacks most core features:
-* it cannot update plots in realtime
-* it cannot change the ticker through selection
-* it gets all the data from the db to make a plot
-Everything will be fixed in later commits 
+From the previous commit everything has changed a lot. I decided to use a more sophisticated approach,
+so I made a Flask app, that gets the values from a producer, and posts them into db. But maybe I underestimated
+the amount of work to be done, because I want to do it using async libraries, which I have never worked with before,
+but anyway it is worth it. Now it just produces data, posts them to a Flask app, and that's it.
+We will see what I will do tomorrow.
