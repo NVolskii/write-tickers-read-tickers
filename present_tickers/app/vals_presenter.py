@@ -3,18 +3,6 @@ import plotly.express as px
 import pandas as pd
 from .models import Ticker, TickerValue
 
-# PG_CONF = {
-#     'dbname': 'postgres',
-#     'host': 'localhost',
-#     'port': 55000,
-#     'user': 'postgres',
-#     'password': 'postgrespw',
-# }
-
-
-# SELECT_VALUES_QUERY='''select ticker_value,processed_dttm from tickers_values where ticker_name=%s;
-# '''
-
 
 def initiate_tickerboard(server):
     app = Dash(server=server, routes_pathname_prefix='/tickerboard/')
@@ -41,7 +29,6 @@ def initiate_tickerboard(server):
     return app.server
 
 
-# @callback(Output('ticker_graph', 'figure'), Input('interval_component', 'n_intervals'))
 @callback(Output('ticker_graph', 'figure'), [Input('choose_ticker', 'value'), Input('interval_component', 'n_intervals')])
 def update_graph(ticker,n):
     ticker_id = Ticker.query.filter(Ticker.tickername == ticker).first().id
