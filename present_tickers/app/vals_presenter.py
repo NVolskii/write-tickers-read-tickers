@@ -33,17 +33,17 @@ def initiate_tickerboard(server):
             id='ticker_graph'
         ),
         dcc.Interval(
-            id='interval-component',
-            interval=1,
+            id='interval_component',
+            interval=1*1000,
             n_intervals=0
         )
     ])
     return app.server
 
 
-@callback(Output('ticker_graph', 'figure'), Input('interval_component', 'n_intervals'))
-@callback(Output('ticker_graph', 'figure'), Input('choose_ticker', 'value'))
-def update_graph(ticker):
+# @callback(Output('ticker_graph', 'figure'), Input('interval_component', 'n_intervals'))
+@callback(Output('ticker_graph', 'figure'), [Input('choose_ticker', 'value'), Input('interval_component', 'n_intervals')])
+def update_graph(ticker,n):
     ticker_id = Ticker.query.filter(Ticker.tickername == ticker).first().id
     res = TickerValue\
         .query\
