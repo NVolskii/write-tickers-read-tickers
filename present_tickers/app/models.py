@@ -37,7 +37,7 @@ class TickerValue(db.Model):
     )
     
     ticker_value = db.Column(
-        db.String,
+        db.Integer,
         index=False,
         nullable=False
     )

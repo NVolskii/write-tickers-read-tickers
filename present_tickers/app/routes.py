@@ -14,7 +14,16 @@ def add_ticker():
     if tickername:
         existing_ticker = Ticker.query.filter(Ticker.tickername == tickername).first()
         if existing_ticker:
-            return {'tickername': existing_ticker.tickername, 'id': existing_ticker.id}
+            val = TickerValue\
+                .query\
+                .filter(TickerValue.ticker_id == existing_ticker.id)\
+                .order_by(TickerValue.processed_dttm.desc())\
+                .first()
+            return {
+                'tickername': existing_ticker.tickername,
+                'id': existing_ticker.id,
+                'val': val.ticker_value if val else 0
+            }
         new_ticker = Ticker(
             tickername=tickername,
         )

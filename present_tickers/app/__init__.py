@@ -13,4 +13,7 @@ def create_app():
         from . import routes
         db.create_all()
 
+        from .vals_presenter import initiate_tickerboard
+        app = initiate_tickerboard(app)
+
         return app
