@@ -1,37 +1,11 @@
+import requests
 from random import random
 import time
-import psycopg2
+import aiohttp
+import asyncio
 
-
-CREATE_TABLE_QUERY = '''DROP TABLE IF EXISTS tickers_values;
-
-CREATE TABLE tickers_values(
-   ticker_value_id INT GENERATED ALWAYS AS IDENTITY,
-   ticker_name VARCHAR(255) NOT NULL,
-   ticker_value INT NOT NULL,
-   processed_dttm TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-   PRIMARY KEY(ticker_value_id)
-);'''
-
-INSERT_VALUES_QUERY = '''INSERT INTO tickers_values(
-    ticker_name,
-    ticker_value
-)
-VALUES (%s, %s)
-'''
-
-PG_CONF = {
-    'dbname': 'postgres',
-    'host': 'localhost',
-    'port': 55000,
-    'user': 'postgres',
-    'password': 'postgrespw',
-}
-
-def create_table():
-    with psycopg2.connect(**PG_CONF) as conn:
-        cur = conn.cursor()
-        cur.execute(CREATE_TABLE_QUERY)
+TICK_EP = 'http://127.0.0.1:5000/ticker/'
+TICK_VAL_EP = 'http://127.0.0.1:5000/ticker_value/'
 
 
 def generate_movement():
@@ -39,25 +13,24 @@ def generate_movement():
     return movement
 
 def generate_tickers():
-    return [(f'ticker_{i:02}', 0) for i in range(100)]
+    tickers = [f'ticker_{i:02}' for i in range(100)]
+    res = []
+    for ticker in tickers:
+        resp = requests.post(TICK_EP, json={"tickername": ticker}).json()
+        res.append((resp.get('id'), resp.get('val')))
+    print(res)
+    return res
 
-def main():
+
+async def main():
     tickers = generate_tickers()
-    with psycopg2.connect(**PG_CONF) as conn:
-        cur = conn.cursor()
-        cur.executemany(
-                INSERT_VALUES_QUERY, tickers
-            )
-        time.sleep(1)
+    async with aiohttp.ClientSession() as s:
         while True:
-            tickers = [(tick, val + generate_movement()) for (tick, val) in tickers]
-            cur.executemany(
-                INSERT_VALUES_QUERY, tickers
-            )
-            conn.commit()
+            tickers = [(t[0], t[1] + generate_movement()) for t in tickers]
+            for t in tickers:
+                await s.post(TICK_VAL_EP, json={'ticker_id': t[0], 'ticker_value': t[1]})
             time.sleep(1)
 
-
 if __name__ == '__main__':
-    create_table()
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
