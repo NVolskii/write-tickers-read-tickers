@@ -1,2 +1,4 @@
-file.txt
+task.md
 venv
+__pycache__
+.env
