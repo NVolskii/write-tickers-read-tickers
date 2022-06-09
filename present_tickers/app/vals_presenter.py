@@ -30,8 +30,12 @@ def initiate_tickerboard(server):
 
 
 @callback(Output('ticker_graph', 'figure'), [Input('choose_ticker', 'value'), Input('interval_component', 'n_intervals')])
-def update_graph(ticker,n):
-    ticker_id = Ticker.query.filter(Ticker.tickername == ticker).first().id
+def update_graph(ticker,n ):
+    ticker = Ticker.query.filter(Ticker.tickername == ticker).first()
+    if not ticker:
+        return px.line()
+    else:
+        ticker_id = ticker.id
     res = TickerValue\
         .query\
         .filter(TickerValue.ticker_id == ticker_id)\

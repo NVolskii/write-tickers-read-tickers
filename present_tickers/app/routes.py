@@ -20,9 +20,8 @@ def add_ticker():
                 .order_by(TickerValue.processed_dttm.desc())\
                 .first()
             return {
-                'tickername': existing_ticker.tickername,
-                'id': existing_ticker.id,
-                'val': val.ticker_value if val else 0
+                'ticker_id': existing_ticker.id,
+                'ticker_value': val.ticker_value if val else 0
             }
         new_ticker = Ticker(
             tickername=tickername,
@@ -33,14 +32,17 @@ def add_ticker():
 
 @app.route('/ticker_value/', methods=['POST'])
 def add_ticker_value():
-    ticker_id = request.json.get('ticker_id')
-    ticker_value = request.json.get('ticker_value')
-    if ticker_id and ticker_value:
-        new_value = TickerValue(
-            ticker_id=ticker_id,
-            ticker_value=ticker_value
-        )
-        db.session.add(new_value)
+    if 'ticker_id' and 'ticker_value' in request.json:
+        db.session.add(TickerValue(**request.json))
         db.session.commit()
-        return make_response(f"{new_value} posted to db")
-    return make_response(f'error posting to db')
+        return make_response("posted to db")
+    return make_response('error posting to db')
+
+@app.route('/tickers_values/', methods=['POST'])
+def add_tickers_values_batch():
+    try:
+        db.session.add_all([TickerValue(**t) for t in request.json])
+        db.session.commit()
+        return make_response('all values added')
+    except:
+        return make_response('error adding values')
