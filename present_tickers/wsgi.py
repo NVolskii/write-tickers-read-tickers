@@ -1,4 +1,3 @@
-import app
+from presenter import create_app
 
-appl = app.create_app()
-appl.run()
+app = create_app()
