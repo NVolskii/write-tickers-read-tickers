@@ -1,12 +1,12 @@
+from dotenv import load_dotenv
 import requests
 from random import random
-import time
 import aiohttp
 import asyncio
+from dotenv import load_dotenv
+from os import getenv
 
-TICK_EP = 'http://127.0.0.1:5000/ticker/'
-TICK_VAL_EP = 'http://127.0.0.1:5000/ticker_value/'
-TICK_VAL_BATCH_EP = 'http://127.0.0.1:5000/tickers_values/'
+load_dotenv()
 
 
 def generate_movement():
@@ -17,7 +17,7 @@ def generate_tickers():
     tickers = [f'ticker_{i:02}' for i in range(100)]
     res = []
     for ticker in tickers:
-        res.append(requests.post(TICK_EP, json={"tickername": ticker}).json())
+        res.append(requests.post(getenv('TICK_EP'), json={"tickername": ticker}).json())
     print(res)
     return res
 
@@ -29,8 +29,8 @@ async def post_one_by_one():
         while True:
             period = asyncio.create_task(asyncio.sleep(1))
             for ticker in tickers:
+                await s.post(getenv('TICK_VAL_EP'), json=ticker)
                 ticker['ticker_value'] += generate_movement()
-                await s.post(TICK_VAL_EP, json=ticker)
             await period
 
 
@@ -39,13 +39,14 @@ async def post_batch():
     async with aiohttp.ClientSession() as s:
         while True:
             period = asyncio.create_task(asyncio.sleep(1))
+            res = asyncio.create_task(s.post(getenv('TICK_VAL_BATCH_EP'), json=tickers))
             tickers = [
                 {
                     'ticker_id': t.get('ticker_id'),
                     'ticker_value': t.get('ticker_value') + generate_movement()
                 } for t in tickers
             ]
-            await s.post(TICK_VAL_BATCH_EP, json=tickers)
+            await res
             await period
 
 if __name__ == '__main__':

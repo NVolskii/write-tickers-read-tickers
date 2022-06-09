@@ -47,3 +47,7 @@ def update_graph(ticker,n ):
     })
     fig = px.line(df, x='Time', y='Value')    
     return fig
+
+@callback(Output('choose_ticker', 'options'), [Input('interval_component', 'n_intervals')])
+def update_dropdown(n):
+    return [t.tickername for t in Ticker.query.all()]

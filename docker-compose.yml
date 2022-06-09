@@ -1,0 +1,39 @@
+version: '3.8'
+volumes:
+  data:
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgres/data
+
+  web_app:
+    build: ./present_tickers
+    image: tickers_presenter
+    command: ["./wait-for-it.sh", "db:5432", "--", "python3", "-m", "flask", "run", "--host=0.0.0.0"]
+    ports: 
+      - 5000:5000
+    environment:
+      - FLASK_APP=wsgi.py
+      - FLASK_ENV=development
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgrespw@db:5432/postgres
+    depends_on:
+      - db
+
+  vals_generator:
+    build: ./post_tickers
+    image: tockers_poster
+    command: ["./wait-for-it.sh", "web_app:5000", "--", "python3", "vals_generator.py"]
+    environment:
+      - TICK_EP=http://web_app:5000/ticker/
+      - TICK_VAL_EP=http://web_app:5000/ticker_value/
+      - TICK_VAL_BATCH_EP=http://web_app:5000/tickers_values/
+    depends_on:
+      - web_app

@@ -1,12 +1,15 @@
-from flask import request, render_template, make_response, jsonify
-from datetime import datetime as dt
+from flask import request, make_response
 from flask import current_app as app
 from .models import db, Ticker, TickerValue
 
 
 @app.route('/', methods=['GET'])
 def homepage():
-    return 'Yo man'
+    return """<html>
+        <body>
+            <p><a href="/tickerboard/">Check out this tickerboard</a></p>
+        </body>
+    </html>"""
 
 @app.route('/ticker/', methods=['POST'])
 def add_ticker():
@@ -26,23 +29,26 @@ def add_ticker():
         new_ticker = Ticker(
             tickername=tickername,
         )
-        db.session.add(new_ticker)  # Adds new User record to database
-        db.session.commit()  # Commits all changes
-    return {'tickername': existing_ticker.tickername, 'id': existing_ticker.id}
+        db.session.add(new_ticker)
+        db.session.commit()
+        new_ticker = Ticker.query.filter(Ticker.tickername == tickername).first()
+        return {'ticker_id': new_ticker.id, 'ticker_value': 0}
+    return 'bad request', 500
+
 
 @app.route('/ticker_value/', methods=['POST'])
 def add_ticker_value():
     if 'ticker_id' and 'ticker_value' in request.json:
         db.session.add(TickerValue(**request.json))
         db.session.commit()
-        return make_response("posted to db")
-    return make_response('error posting to db')
+        return 'success', 200
+    return 'bad request', 500
 
 @app.route('/tickers_values/', methods=['POST'])
 def add_tickers_values_batch():
     try:
         db.session.add_all([TickerValue(**t) for t in request.json])
         db.session.commit()
-        return make_response('all values added')
+        return 'success', 200
     except:
-        return make_response('error adding values')
+        return 'bad request', 500
