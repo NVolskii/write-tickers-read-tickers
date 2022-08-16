@@ -102,3 +102,6 @@ approach started to look ugly in the very beginnig, so I decided to use SQL-alch
 pretty straightforward in order not to lack readability. I hope I managed to achieve it.
 
 Have a nice day!
+
+
+## I also want to present some changes
